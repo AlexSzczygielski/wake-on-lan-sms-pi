@@ -20,11 +20,13 @@ flowchart TD;
 ```
 
 ## Software stack
-- Python 
-- `pyserial` for GSM serial communication
-- AT commands
+- `Python` 
+- `pyserial` for serial communication
+- `AT` commands for controlling the GSM module
 - `wakeonlan` package
 - `cron` for autostart on boot
+- Linux
+- `bash` scripting
 
 ## Hardware Requirements
 -  Raspberry Pi 4B (other models may work)
@@ -32,7 +34,8 @@ flowchart TD;
 -  Configured and activated SIM card
 -  Target device that supports Wake-on-LAN
 
-* Consider using a cheaper alternative, as this high speed LTE Cat-4 module is an overkill for this project. Something like SIM800L (https://www.waveshare.com/wiki/SIM800C_GSM/GPRS_HAT or https://botland.store/withdrawn-products/8891-module-gsm-gprs-sim800l.html) is cheap and should work just as fine. Probably even the serial port would be the same, so it should work as plug an play with this project.
+* Consider using a cheaper alternative, as this high speed LTE Cat-4 module is an overkill for this project. Something like SIM800L (https://www.waveshare.com/wiki/SIM800C_GSM/GPRS_HAT or https://botland.store/withdrawn-products/8891-module-gsm-gprs-sim800l.html) is cheap and should work just as fine. Probably even the serial port would be the same, so it should work as plug an play with this project. <br>
+**Remeber that when you use minicom, the serial port will be occupied by it, so magic packet won't be send.**
 
 
 ## Issue genesis
@@ -52,12 +55,13 @@ While opening your LAN and making a vpn might have sense when you need to remote
 ## Setup    
 ### Steps to config SIM7600E H on rpi 4B:
 1. ssh into your rpi
-2. sudo raspi-config
-  Here get into interface options (3), then serial port (6), login shell to be accessible over serial? - NO, serial port hardware to be enabled? YES,
-3. sudo reboot
+2. ```sudo raspi-config```
+  Here get into interface options (3), then serial port (6), **login shell to be accessible over serial? - NO**, **serial port hardware to be enabled? YES**,
+3. ```sudo reboot```
 
-## Wake on Lan configuration using provided .sh file (automatic)
+### Wake on Lan configuration using provided .sh file (automatic)
 Assuming newly installed linux OS:
+```bash
 1. sudo apt update
 2. udo apt install git
 3. mkdir wol
@@ -66,36 +70,37 @@ Assuming newly installed linux OS:
 6. cd wake-on-lan-sms-pi/
 7. chmod +x setup_wol_sms.sh
 8. ./setup_wol_sms.sh
+```
 
-
-## Steps to manually configure wake on lan (after GSM module is up and running)
+### Steps to manually configure wake on lan (after GSM module is up and running)
+```bash
 1. sudo apt update
 2. (optional - if you want to debug) sudo apt-get install minicom
 3. sudo apt install wakeonlan
 4. python --version (check if you have python installed)
-5. sudo apt install python3-pip -y (if not already installed) !!DElete!!!
-6. pip3 install pyserial !!!Delete!!!
-7. sudo apt-get install python3-serial
-8. sudo apt install git
-9. mkdir wol
-10. cd wol
-11. git clone https://github.com/AlexSzczygielski/wake-on-lan-sms-pi.git
-12. cd wake-on-lan-sms-pi/
-13. nano config.ini (fill it with required data and save)
-14. nano smsWake.py
-15. Here change line: config.read('/home/pi/Desktop/config.ini'), Change this to your file path (line 27), save and exit
-16. (optional) python smsWake.py - check if the file compiles correctly
-17. cd ~
-18. crontab -e
-19. @reboot python /home/pi/Desktop/smsWake.py' (Add this at the end of crontab file, change this to your file path, save and exit)
-20. sudo reboot
+5. sudo apt-get install python3-serial
+6. sudo apt install git
+7. mkdir wol
+8. cd wol
+9. git clone https://github.com/AlexSzczygielski/wake-on-lan-sms-pi.git
+10. cd wake-on-lan-sms-pi/
+11. nano config.ini (fill it with required data and save)
+12. nano smsWake.py
+13. Here change line: config.read('/home/pi/Desktop/config.ini'), Change this to your file path (line 27), save and exit
+14. (optional) python smsWake.py - check if the file compiles correctly
+15. cd ~
+16. crontab -e
+17. @reboot python /home/pi/Desktop/smsWake.py' (Add this at the end of crontab file, change this to your file path, save and exit)
+18. sudo reboot
+```
+ <br>
 
-After that the python script should automatically start, every time the RPi turns on. To check if it runs you can use:
+After that the **python script should automatically start**, every time the RPi turns on. To check if it runs you can use: <br>
 
-ps aux|grep python
+`ps aux|grep python` <br>
 
-To see what happens at the serial port you can use minicom:
+To see what happens at the serial port you can use minicom: <br>
 
-minicom -D /dev/ttyS0 (may need to adjust port)
+minicom -D /dev/ttyS0 (may need to adjust port) <br>
 
-Remeber that when you use minicom, the serial port will be occupied by it, so magic packet won't be send.
+**Remeber that when you use minicom, the serial port will be occupied by it, so magic packet won't be send.**
