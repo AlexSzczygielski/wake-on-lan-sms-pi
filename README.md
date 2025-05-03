@@ -101,6 +101,6 @@ After that the **python script should automatically start**, every time the RPi 
 
 To see what happens at the serial port you can use minicom: <br>
 
-minicom -D /dev/ttyS0 (may need to adjust port) <br>
+`minicom -D /dev/ttyS0` (may need to adjust port) <br>
 
 **Remeber that when you use minicom, the serial port will be occupied by it, so magic packet won't be send.**
