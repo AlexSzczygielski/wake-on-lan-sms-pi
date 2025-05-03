@@ -1,9 +1,39 @@
 # Wake-on-Lan via SMS using RaspberryPi
 
 Remotely wake on your home computer or NAS using an SMS message. <br>
-**This script allows sending magic packet inside your LAN network, without opening any of it's ports to the public.** <br>
+**This script allows sending magic packet inside your LAN network, without forwarding any of it's ports to the public.** <br>
 
-This project uses RaspberryPi 4B with Waveshare SIM7600E-H Hat GSM module (https://www.waveshare.com/wiki/SIM7600E-H_4G_HAT).
+This project uses RaspberryPi 4B with Waveshare SIM7600E-H Hat GSM module (https://www.waveshare.com/wiki/SIM7600E-H_4G_HAT). <br>
+This module was used, as i already had it but this script should also work, with any GSM module that allows for serial communication and uses standard AT commands [see hardware section for more](#hardware-requirements)
+
+## Why?
+
+Most remote WoL solutions require **port forwarding**, which opens up your local network to external traffic. This setup offers an **safer alternative**, letting you send a magic packet securely via SMS — no opened network access required.
+
+# How does it work?
+```mermaid
+flowchart TD;
+    A[Python process listens for new SMS messages over serial port] --> B[Provided number sends 'on'];
+    B --> C[Python process detects a message with 'on' from a friendly number];
+    C --> D[Python process sends a magic packet];
+    D --> E[Target Device e.g. NAS, PC turns on];
+```
+
+## Software stack
+- Python 
+- `pyserial` for GSM serial communication
+- AT commands
+- `wakeonlan` package
+- `cron` for autostart on boot
+
+## Hardware Requirements
+-  Raspberry Pi 4B (other models may work)
+-  SIM7600E-H *
+-  Configured and activated SIM card
+-  Target device that supports Wake-on-LAN
+
+* Consider using a cheaper alternative, as this high speed LTE Cat-4 module is an overkill for this project. Something like SIM800L (https://www.waveshare.com/wiki/SIM800C_GSM/GPRS_HAT or https://botland.store/withdrawn-products/8891-module-gsm-gprs-sim800l.html) is cheap and should work just as fine. Probably even the serial port would be the same, so it should work as plug an play with this project.
+
 
 ## Issue genesis
 
@@ -17,11 +47,10 @@ Turn on my Windows remotely by sending magic packet to it's mac address. The mos
 - Difficult configuration - correctly setting DHCP, opening network port, generating SSH key for safe communication, mocking a static public IP (as most home networks don't have a static public IP)
 - **Exposing your LAN for dangerous attacks** - there are malicious bots that scan WAN in search for open networks, try breaking into them and then can pose **serious attacks, like e.g Man in the Middle attack**. Not correctly configure open LAN can mean not only unwanted users inside your LAN, attacks on devices in your home network, but also a threat for your passwords, bank accounts, etc.<br>
 
-While opening your LAN and making a vpn might have sense when you need to remotely access files, servers, etc. it doesn't make sense when the only thing that needs remote access is sending a magic packet to wake on your PC. **This is, where my project comes in handy as it allows to send WOL packets, without opening your network.**
+While opening your LAN and making a vpn might have sense when you need to remotely access files, servers, etc. it doesn't make sense when the only thing that needs remote access is sending a magic packet to wake on your PC. **This is, where my project comes in handy as it allows to send WoL packets, without opening your network.**
 
-# How does it work?
-
-## Steps to config SIM7600e h on rpi 4B:
+## Setup    
+### Steps to config SIM7600E H on rpi 4B:
 1. ssh into your rpi
 2. sudo raspi-config
   Here get into interface options (3), then serial port (6), login shell to be accessible over serial? - NO, serial port hardware to be enabled? YES,
